@@ -1,8 +1,8 @@
 import { AppBskyActorDefs, ComAtprotoLabelDefs } from '@atproto/api';
 import { LabelerServer } from '@skyware/labeler';
 
-import { DID, SIGNING_KEY } from './config.js';
-import { DELETE, LABELS } from './constants.js';
+import {DELETE_POST_REF, DID, SIGNING_KEY} from './config.js';
+import { LABELS } from './constants.js';
 import logger from './logger.js';
 
 export const labelerServer = new LabelerServer({ did: DID, signingKey: SIGNING_KEY });
@@ -18,7 +18,7 @@ export const label = async (subject: string | AppBskyActorDefs.ProfileView, rkey
   try {
     const labels = fetchCurrentLabels(did);
 
-    if (rkey.includes(DELETE)) {
+    if (rkey.includes(DELETE_POST_REF)) {
       await deleteAllLabels(did, labels);
     } else {
       await addOrUpdateLabel(did, rkey, labels);

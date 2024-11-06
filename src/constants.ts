@@ -1,7 +1,5 @@
 import { Label } from './types.js';
 
-export const DELETE = 'insert-rkey-of-delete-post-here';
-
 export const WARRIOR_CLASS_LABEL: Label =   {
   identifier: 'warrior',
   locales: [
