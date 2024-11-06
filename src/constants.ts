@@ -92,21 +92,21 @@ export const LOW_HEALTH_LABEL: Label =   {
 }
 
 export const MAX_MANA_LABEL: Label =   {
-  identifier: 'max-hp',
+  identifier: 'max-mana',
   locales: [
     { lang: 'en', name: 'Max Mana', description: 'This user has maximum mana points.'},
   ]
 }
 
 export const HIGH_MANA_LABEL: Label =   {
-  identifier: 'high-hp',
+  identifier: 'high-mana',
   locales: [
     { lang: 'en', name: 'High Mana', description: 'This user has more than half of their mana points.'},
   ]
 }
 
 export const LOW_MANA_LABEL: Label =   {
-  identifier: 'low-hp',
+  identifier: 'low-mana',
   locales: [
     { lang: 'en', name: 'Low Mana', description: 'This user has less than half of their mana points.'},
   ]
