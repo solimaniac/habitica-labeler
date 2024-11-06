@@ -2,7 +2,7 @@ import { AppBskyActorDefs, ComAtprotoLabelDefs } from '@atproto/api';
 import { LabelerServer } from '@skyware/labeler';
 
 import { DID, SIGNING_KEY } from './config.js';
-import { DELETE, LABELS, LABEL_LIMIT } from './constants.js';
+import { DELETE, LABELS } from './constants.js';
 import logger from './logger.js';
 
 export const labelerServer = new LabelerServer({ did: DID, signingKey: SIGNING_KEY });
@@ -66,7 +66,7 @@ async function addOrUpdateLabel(did: string, rkey: string, labels: Set<string>) 
   const newLabel = LABELS.find((label) => label.rkey === rkey);
   logger.info(`New label: ${newLabel?.identifier}`);
 
-  if (labels.size >= LABEL_LIMIT) {
+  if (labels.size >= 1) {
     try {
       await labelerServer.createLabels({ uri: did }, { negate: Array.from(labels) });
       logger.info(`Successfully negated existing labels: ${Array.from(labels).join(', ')}`);
