@@ -2,9 +2,8 @@ import {CommitCreateEvent, Jetstream} from '@skyware/jetstream';
 import fs from 'node:fs';
 
 import {
-  BSKY_BOT_IDENTIFIER, BSKY_BOT_PASSWORD,
-  BSKY_IDENTIFIER,
-  BSKY_PASSWORD,
+  BSKY_BOT_IDENTIFIER,
+  BSKY_BOT_PASSWORD,
   CURSOR_UPDATE_INTERVAL,
   DID,
   FIREHOSE_URL,
@@ -49,7 +48,7 @@ bot.on("message", async (message: ChatMessage) => {
 
   const conversation = await message.getConversation();
   if (conversation) {
-    await conversation.sendMessage({ text: "Hey there, " + sender.displayName + "!" });
+    await conversation.sendMessage({text: "Hey there, " + sender.displayName + "!"});
   }
 });
 
