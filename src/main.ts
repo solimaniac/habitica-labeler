@@ -90,8 +90,6 @@ jetstream.onCreate(WANTED_COLLECTION, (event: CommitCreateEvent<typeof WANTED_CO
   }
 });
 
-console.log('THIS IS THE PORT:', PORT);
-
 labelerServer.start(PORT, (error, address) => {
   if (error) {
     logger.error('Error starting server: %s', error);
