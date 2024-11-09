@@ -165,7 +165,7 @@ export const getAllLabels = (
     labels.add(LEVEL_0_LABEL.identifier);
   }
 
-  if (health === maxHealth) {
+  if (health >= maxHealth) {
     labels.add(MAX_HEALTH_LABEL.identifier);
   } else if (health >= maxHealth / 2) {
     labels.add(HIGH_HEALTH_LABEL.identifier);
@@ -173,7 +173,7 @@ export const getAllLabels = (
     labels.add(LOW_HEALTH_LABEL.identifier);
   }
 
-  if (mana === maxMana) {
+  if (mana >= maxMana) {
     labels.add(MAX_MANA_LABEL.identifier);
   } else if (mana >= maxMana / 2) {
     labels.add(HIGH_MANA_LABEL.identifier);

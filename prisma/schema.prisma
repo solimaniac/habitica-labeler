@@ -21,6 +21,8 @@ model Stats {
   class       String
   level       String
   health      String
+  maxHealth   String
   mana        String
+  maxMana     String
   lastUpdated DateTime
 }

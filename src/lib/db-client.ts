@@ -30,23 +30,25 @@ export const getCursor = async (): Promise<Cursor | null> => {
 }
 
 export const createStats = async (
-  id: string,
   localId: string,
   remoteId: string,
   playerClass: string,
   level: string,
   health: string,
-  mana: string
+  maxHealth: string,
+  mana: string,
+  maxMana: string,
 ) => {
   return prisma.stats.create({
     data: {
-      id,
       localId,
       remoteId,
       class: playerClass,
       level,
       health,
+      maxHealth,
       mana,
+      maxMana,
       lastUpdated: new Date()
     }
   });
@@ -75,6 +77,16 @@ export const updateStats = async (
   });
 }
 
+export const updateStatsTimestamp = async (id: string) => {
+  return prisma.stats.update({
+    where: {
+      id
+    },
+    data: {
+      lastUpdated: new Date()
+    }
+  });
+}
 
 export const getStatsByLocalId = async (localId: string): Promise<Stats | null> => {
   try {

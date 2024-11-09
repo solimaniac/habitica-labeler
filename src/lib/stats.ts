@@ -1,9 +1,8 @@
 import fetch from 'node-fetch';
-import {createStats, deleteStatsById, getStatsByLocalId, updateStats} from './db-client';
+import {createStats, deleteStatsById, getStatsByLocalId, updateStats, updateStatsTimestamp} from './db-client';
 import {addOrUpdateLabel, fetchCurrentLabels} from "./labeler";
 import {getAllLabels} from "../labels";
 import {HABITICA_AUTHOR_USER_ID} from "../config";
-import logger from "./logger";
 
 interface HabiticaMemberResponse {
   success: boolean;
@@ -31,10 +30,8 @@ export async function syncMemberStats(remoteId: string, localId: string): Promis
   if (!response.ok) {
     throw new Error(`Error fetching user ${localId} info, status: ${response.status}`);
   }
-  
+
   const data = await response.json() as HabiticaMemberResponse;
-  
-  logger.info(`Fetched user ${localId} info: ${JSON.stringify(data)}`);
 
   if (!data.success) {
     throw new Error(`Error fetching user ${localId} info, status: ${data.success}`);
@@ -42,21 +39,23 @@ export async function syncMemberStats(remoteId: string, localId: string): Promis
 
   const {stats} = data.data;
   const existingStats = await getStatsByLocalId(localId);
-  const compositeId = `${localId}-${remoteId}`;
 
   if (existingStats) {
     const hasChanged =
       existingStats.class !== stats.class ||
       existingStats.level !== stats.lvl.toString() ||
       existingStats.health !== stats.hp.toString() ||
-      existingStats.mana !== stats.mp.toString();
+      existingStats.mana !== stats.mp.toString() ||
+      existingStats.maxMana !== stats.maxMP.toString() ||
+      existingStats.maxHealth !== stats.maxHealth.toString();
 
     if (!hasChanged) {
+      await updateStatsTimestamp(existingStats.id);
       return;
     }
-    
+
     await updateStats(
-      compositeId,
+      existingStats.id,
       remoteId,
       stats.class,
       stats.lvl.toString(),
@@ -79,13 +78,14 @@ export async function syncMemberStats(remoteId: string, localId: string): Promis
     );
   } else {
     await createStats(
-      compositeId,
       localId,
       remoteId,
       stats.class,
       stats.lvl.toString(),
       stats.hp.toString(),
-      stats.mp.toString()
+      stats.maxHealth.toString(),
+      stats.mp.toString(),
+      stats.maxMP.toString()
     );
 
     const labels = fetchCurrentLabels(localId);
