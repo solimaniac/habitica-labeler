@@ -1,5 +1,4 @@
 import {CommitCreateEvent, Jetstream} from '@skyware/jetstream';
-import fs from 'node:fs';
 
 import {
   BSKY_BOT_IDENTIFIER,
@@ -14,28 +13,16 @@ import {label, labelerServer} from './label.js';
 import logger from './logger.js';
 import {ChatMessage} from "@skyware/bot";
 import {bot} from "./bot.js";
+import {initCursor, setCursor} from "./lib/cursor.js";
 
 let cursor = 0;
-let cursorUpdateInterval: NodeJS.Timeout;
+let cursorUpdateInterval;
 
 function epochUsToDateTime(cursor: number): string {
   return new Date(cursor / 1000).toISOString();
 }
 
-try {
-  logger.info('Trying to read cursor from cursor.txt...');
-  cursor = Number(fs.readFileSync('cursor.txt', 'utf8'));
-  logger.info(`Cursor found: ${cursor} (${epochUsToDateTime(cursor)})`);
-} catch (error) {
-  if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
-    cursor = Math.floor(Date.now() * 1000);
-    logger.info(`Cursor not found in cursor.txt, setting cursor to: ${cursor} (${epochUsToDateTime(cursor)})`);
-    fs.writeFileSync('cursor.txt', cursor.toString(), 'utf8');
-  } else {
-    logger.error(error);
-    process.exit(1);
-  }
-}
+await initCursor()
 
 await bot.login({
   identifier: BSKY_BOT_IDENTIFIER,
@@ -62,12 +49,9 @@ jetstream.on('open', () => {
   logger.info(
     `Connected to Jetstream at ${FIREHOSE_URL} with cursor ${jetstream.cursor} (${epochUsToDateTime(jetstream.cursor!)})`,
   );
-  cursorUpdateInterval = setInterval(() => {
+  cursorUpdateInterval = setInterval(async () => {
     if (jetstream.cursor) {
-      logger.info(`Cursor updated to: ${jetstream.cursor} (${epochUsToDateTime(jetstream.cursor)})`);
-      fs.writeFile('cursor.txt', jetstream.cursor.toString(), (err) => {
-        if (err) logger.error(err);
-      });
+      await setCursor(jetstream.cursor);
     }
   }, CURSOR_UPDATE_INTERVAL);
 });
@@ -100,10 +84,10 @@ labelerServer.start(PORT, (error, address) => {
 
 jetstream.start();
 
-function shutdown() {
+async function shutdown() {
   try {
     logger.info('Shutting down gracefully...');
-    fs.writeFileSync('cursor.txt', jetstream.cursor!.toString(), 'utf8');
+    await setCursor(jetstream.cursor!);
     jetstream.close();
     labelerServer.stop();
   } catch (error) {

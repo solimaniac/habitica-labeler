@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@atproto/api": "^0.13.14",
+    "@prisma/client": "5.22.0",
     "@skyware/bot": "^0.3.6",
     "@skyware/jetstream": "^0.2.0",
     "@skyware/labeler": "^0.1.11",
@@ -39,6 +40,7 @@
     "lint-staged": "^15.2.10",
     "pino": "^9.5.0",
     "pino-pretty": "^11.3.0",
+    "prisma": "^5.22.0",
     "prom-client": "^15.1.3"
   }
 }
