@@ -11,7 +11,7 @@ export const initCursor = async () => {
 
   if (!cursor) {
     const newCursor = Math.floor(Date.now() * 1000);
-    logger.info(`Cursor not found, setting cursor to: ${cursor} (${epochUsToDateTime(newCursor)})`);
+    logger.info(`Cursor not found, setting cursor to: ${newCursor} (${epochUsToDateTime(newCursor)})`);
     await upsertCursor(newCursor.toString());
     return;
   }
@@ -19,9 +19,9 @@ export const initCursor = async () => {
 }
 
 export const setCursor = async (cursor: number) => {
-  logger.info(`Cursor updated to: ${cursor} (${epochUsToDateTime(cursor)})`);
   try {
     await upsertCursor(cursor.toString());
+    logger.info(`Cursor updated to: ${cursor} (${epochUsToDateTime(cursor)})`);
   } catch (error) {
     logger.error(`Error updating cursor: ${error}`);
   }
