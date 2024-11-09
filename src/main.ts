@@ -16,7 +16,7 @@ import {bot} from "./bot.js";
 import {initCursor, setCursor} from "./lib/cursor.js";
 
 let cursor = 0;
-let cursorUpdateInterval;
+let cursorUpdateInterval: NodeJS.Timeout;
 
 function epochUsToDateTime(cursor: number): string {
   return new Date(cursor / 1000).toISOString();
@@ -53,7 +53,7 @@ jetstream.on('open', () => {
     if (jetstream.cursor) {
       await setCursor(jetstream.cursor);
     }
-  }, CURSOR_UPDATE_INTERVAL);
+  }, CURSOR_UPDATE_INTERVAL) as NodeJS.Timeout;
 });
 
 jetstream.on('close', () => {
