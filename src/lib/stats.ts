@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import {createStats, deleteStatsById, getStatsByLocalId, updateStats} from './db-client';
 import {addOrUpdateLabel, fetchCurrentLabels} from "./labeler";
 import {getAllLabels} from "../labels";
+import logger from "./logger";
 
 interface HabiticaMemberResponse {
   success: boolean;
@@ -34,6 +35,8 @@ export async function syncMemberStats(remoteId: string, localId: string): Promis
   if (!data.success) {
     throw new Error(`Error fetching user ${localId} info, status: ${data.success}`);
   }
+
+  logger.info("Request response received: ", data)
 
   const {stats} = data.data.stats;
   const existingStats = await getStatsByLocalId(localId);
