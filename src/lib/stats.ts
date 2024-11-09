@@ -60,7 +60,9 @@ export async function syncMemberStats(remoteId: string, localId: string): Promis
       stats.class,
       stats.lvl.toString(),
       stats.hp.toString(),
-      stats.mp.toString()
+      stats.maxHealth.toString(),
+      stats.mp.toString(),
+      stats.maxMP.toString()
     );
 
     const labels = fetchCurrentLabels(localId);

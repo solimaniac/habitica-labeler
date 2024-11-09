@@ -60,7 +60,9 @@ export const updateStats = async (
   playerClass: string,
   level: string,
   health: string,
-  mana: string
+  maxHealth: string,
+  mana: string,
+  maxMana: string
 ) => {
   return prisma.stats.update({
     where: {
@@ -71,7 +73,9 @@ export const updateStats = async (
       class: playerClass,
       level,
       health,
+      maxHealth,
       mana,
+      maxMana,
       lastUpdated: new Date()
     }
   });
