@@ -143,7 +143,7 @@ export const getAllLabels = (
 
   if (playerClass === 'warrior') {
     labels.add(WARRIOR_CLASS_LABEL.identifier);
-  } else if (playerClass === 'mage') {
+  } else if (playerClass === 'wizard') {
     labels.add(MAGE_CLASS_LABEL.identifier);
   } else if (playerClass === 'healer') {
     labels.add(HEALER_CLASS_LABEL.identifier);

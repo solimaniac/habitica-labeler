@@ -9,6 +9,7 @@ export const BSKY_IDENTIFIER = process.env.BSKY_IDENTIFIER ?? '';
 export const BSKY_PASSWORD = process.env.BSKY_PASSWORD ?? '';
 export const BSKY_BOT_IDENTIFIER = process.env.BSKY_BOT_IDENTIFIER ?? '';
 export const BSKY_BOT_PASSWORD = process.env.BSKY_BOT_PASSWORD ?? '';
+export const HABITICA_AUTHOR_USER_ID = process.env.HABITICA_AUTHOR_USER_ID ?? '';
 export const CURSOR_UPDATE_INTERVAL =
   process.env.CURSOR_UPDATE_INTERVAL ? Number(process.env.CURSOR_UPDATE_INTERVAL) : 10000;
 export const DELETE_POST_REF = process.env.DELETE_POST_REF ?? '';

@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import {createStats, deleteStatsById, getStatsByLocalId, updateStats} from './db-client';
 import {addOrUpdateLabel, fetchCurrentLabels} from "./labeler";
 import {getAllLabels} from "../labels";
+import {HABITICA_AUTHOR_USER_ID} from "../config";
 import logger from "./logger";
 
 interface HabiticaMemberResponse {
@@ -23,22 +24,23 @@ export async function syncMemberStats(remoteId: string, localId: string): Promis
   const response = await fetch(`https://habitica.com/api/v3/members/${remoteId}`, {
     headers: {
       'Content-Type': 'application/json',
+      'x-client': HABITICA_AUTHOR_USER_ID + '-habitica-bluesky-labeler',
     },
-  });
+  })
 
   if (!response.ok) {
     throw new Error(`Error fetching user ${localId} info, status: ${response.status}`);
   }
-
-  logger.info("Request response received: ", await response.json())
   
   const data = await response.json() as HabiticaMemberResponse;
+  
+  logger.info(`Fetched user ${localId} info: ${JSON.stringify(data)}`);
 
   if (!data.success) {
     throw new Error(`Error fetching user ${localId} info, status: ${data.success}`);
   }
 
-  const {stats} = data.data.stats;
+  const {stats} = data.data;
   const existingStats = await getStatsByLocalId(localId);
   const compositeId = `${localId}-${remoteId}`;
 
