@@ -23,7 +23,7 @@ export const getCursor = async (): Promise<Cursor | null> => {
       id: 1
     }
   }).then((cursor) => {
-    return cursor.content;
+    return cursor;
   }).catch((error) => {
     return null;
   });

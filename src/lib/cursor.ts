@@ -7,16 +7,17 @@ const epochUsToDateTime = (cursor: number): string => {
   return new Date(cursor / 1000).toISOString();
 }
 
-export const initCursor = async () => {
+export const initCursor = async (): Promise<number> => {
   const cursor: Cursor | null = await getCursor();
 
   if (!cursor) {
     const newCursor = Math.floor(Date.now() * 1000);
     logger.info(`Cursor not found, setting cursor to: ${newCursor} (${epochUsToDateTime(newCursor)})`);
     await upsertCursor(newCursor.toString());
-    return;
+    return newCursor;
   }
   logger.info(`Cursor found: ${cursor.content} (${epochUsToDateTime(cursor.content)})`);
+  return cursor.content;
 }
 
 export const setCursor = async (cursor: number) => {

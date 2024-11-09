@@ -15,14 +15,13 @@ import {ChatMessage} from "@skyware/bot";
 import {bot} from "./bot.js";
 import {initCursor, setCursor} from "./lib/cursor.js";
 
-let cursor = 0;
 let cursorUpdateInterval: NodeJS.Timeout;
 
 function epochUsToDateTime(cursor: number): string {
   return new Date(cursor / 1000).toISOString();
 }
 
-await initCursor()
+const initialCursor = await initCursor()
 
 await bot.login({
   identifier: BSKY_BOT_IDENTIFIER,
@@ -42,7 +41,7 @@ bot.on("message", async (message: ChatMessage) => {
 const jetstream = new Jetstream({
   wantedCollections: [WANTED_COLLECTION],
   endpoint: FIREHOSE_URL,
-  cursor: cursor,
+  cursor: initialCursor,
 });
 
 jetstream.on('open', () => {
