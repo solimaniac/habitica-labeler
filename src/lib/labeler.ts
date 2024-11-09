@@ -7,7 +7,7 @@ import logger from './logger';
 const labelerServer = new LabelerServer({did: DID, signingKey: SIGNING_KEY});
 
 export const startLabeler = () => {
-  labelerServer.start(PORT, (error, address) => {
+  labelerServer.app.listen({port: PORT, host: '0.0.0.0'}, (error, address) => {
     if (error) {
       logger.error('Error starting server: %s', error);
     } else {
