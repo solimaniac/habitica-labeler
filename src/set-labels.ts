@@ -3,7 +3,7 @@ import { type LoginCredentials, setLabelerLabelDefinitions } from '@skyware/labe
 
 import { BSKY_IDENTIFIER, BSKY_PASSWORD } from './config.js';
 import { LABELS } from './constants.js';
-import logger from './logger.js';
+import logger from './lib/logger.js';
 
 const loginCredentials: LoginCredentials = {
   identifier: BSKY_IDENTIFIER,

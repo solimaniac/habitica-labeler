@@ -1,9 +1,8 @@
 import {Cursor} from '@prisma/client'
 import {getCursor, upsertCursor} from "./db-client.js";
-import logger from "../logger.js";
+import logger from "./logger.js";
 
 const epochUsToDateTime = (cursor: number): string => {
-  logger.info(`Converting cursor: ${cursor}`);
   return new Date(cursor / 1000).toISOString();
 }
 

@@ -38,6 +38,7 @@
     "express": "^4.21.1",
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10",
+    "node-fetch": "^3.3.2",
     "pino": "^9.5.0",
     "pino-pretty": "^11.3.0",
     "prisma": "^5.22.0",

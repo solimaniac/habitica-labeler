@@ -1,42 +1,22 @@
 import {CommitCreateEvent, Jetstream} from '@skyware/jetstream';
 
 import {
-  BSKY_BOT_IDENTIFIER,
-  BSKY_BOT_PASSWORD,
   CURSOR_UPDATE_INTERVAL,
   DID,
   FIREHOSE_URL,
   PORT,
   WANTED_COLLECTION
-} from './config.js';
-import {label, labelerServer} from './label.js';
-import logger from './logger.js';
-import {ChatMessage} from "@skyware/bot";
-import {bot} from "./bot.js";
-import {initCursor, setCursor} from "./lib/cursor.js";
+} from './config';
+import {startLabeler, stopLabeler} from './lib/labeler.js';
+import logger from './lib/logger';
+import {startBot} from "./lib/bot";
+import {initCursor, setCursor} from "./lib/cursor";
+import {handleLike} from "./lib/handler.js";
 
 let cursorUpdateInterval: NodeJS.Timeout;
 
-function epochUsToDateTime(cursor: number): string {
-  return new Date(cursor / 1000).toISOString();
-}
-
 const initialCursor = await initCursor()
-
-await bot.login({
-  identifier: BSKY_BOT_IDENTIFIER,
-  password: BSKY_BOT_PASSWORD,
-});
-
-bot.on("message", async (message: ChatMessage) => {
-  const sender = await message.getSender();
-  console.log(`Received message from @${sender.handle}: ${message.text}`);
-
-  const conversation = await message.getConversation();
-  if (conversation) {
-    await conversation.sendMessage({text: "Hey there, " + sender.displayName + "!"});
-  }
-});
+await startBot()
 
 const jetstream = new Jetstream({
   wantedCollections: [WANTED_COLLECTION],
@@ -46,7 +26,7 @@ const jetstream = new Jetstream({
 
 jetstream.on('open', () => {
   logger.info(
-    `Connected to Jetstream at ${FIREHOSE_URL} with cursor ${jetstream.cursor} (${epochUsToDateTime(jetstream.cursor!)})`,
+    `Connected to Jetstream at ${FIREHOSE_URL} with cursor ${jetstream.cursor}`,
   );
   cursorUpdateInterval = setInterval(async () => {
     if (jetstream.cursor) {
@@ -67,20 +47,13 @@ jetstream.on('error', (error) => {
 jetstream.onCreate(WANTED_COLLECTION, (event: CommitCreateEvent<typeof WANTED_COLLECTION>) => {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (event.commit?.record?.subject?.uri?.includes(DID)) {
-    label(event.did, event.commit.record.subject.uri.split('/').pop()!).catch((error: unknown) => {
-      logger.error(`Unexpected error labeling ${event.did}: ${error}`);
+    handleLike(event.did, event.commit.record.subject.uri.split('/').pop()!).catch((error: unknown) => {
+      logger.error(`Unexpected error handling liked post ${event.did}: ${error}`);
     });
   }
 });
 
-labelerServer.start(PORT, (error, address) => {
-  if (error) {
-    logger.error('Error starting server: %s', error);
-  } else {
-    logger.info(`Labeler server listening on ${address}`);
-  }
-});
-
+startLabeler();
 jetstream.start();
 
 async function shutdown() {
@@ -88,7 +61,7 @@ async function shutdown() {
     logger.info('Shutting down gracefully...');
     await setCursor(jetstream.cursor!);
     jetstream.close();
-    labelerServer.stop();
+    stopLabeler();
   } catch (error) {
     logger.error(`Error shutting down gracefully: ${error}`);
     process.exit(1);

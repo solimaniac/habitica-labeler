@@ -130,3 +130,56 @@ export const LABELS: Label[] = [
   HIGH_MANA_LABEL,
   LOW_MANA_LABEL,
 ];
+
+export const getAllLabels = (
+  playerClass: string,
+  level: number,
+  health: number,
+  maxHealth: number,
+  mana: number,
+  maxMana: number
+): string[] => {
+  const labels = new Set<string>();
+
+  if (playerClass === 'warrior') {
+    labels.add(WARRIOR_CLASS_LABEL.identifier);
+  } else if (playerClass === 'mage') {
+    labels.add(MAGE_CLASS_LABEL.identifier);
+  } else if (playerClass === 'healer') {
+    labels.add(HEALER_CLASS_LABEL.identifier);
+  } else if (playerClass === 'rogue') {
+    labels.add(ROGUE_CLASS_LABEL.identifier);
+  }
+
+  if (level >= 100) {
+    labels.add(MAX_LEVEL_LABEL.identifier);
+  } else if (level >= 80) {
+    labels.add(LEVEL_80_LABEL.identifier);
+  } else if (level >= 50) {
+    labels.add(LEVEL_50_LABEL.identifier);
+  } else if (level >= 30) {
+    labels.add(LEVEL_30_LABEL.identifier);
+  } else if (level >= 10) {
+    labels.add(LEVEL_10_LABEL.identifier);
+  } else {
+    labels.add(LEVEL_0_LABEL.identifier);
+  }
+
+  if (health === maxHealth) {
+    labels.add(MAX_HEALTH_LABEL.identifier);
+  } else if (health >= maxHealth / 2) {
+    labels.add(HIGH_HEALTH_LABEL.identifier);
+  } else {
+    labels.add(LOW_HEALTH_LABEL.identifier);
+  }
+
+  if (mana === maxMana) {
+    labels.add(MAX_MANA_LABEL.identifier);
+  } else if (mana >= maxMana / 2) {
+    labels.add(HIGH_MANA_LABEL.identifier);
+  } else {
+    labels.add(LOW_MANA_LABEL.identifier);
+  }
+  
+  return Array.from(labels);
+}

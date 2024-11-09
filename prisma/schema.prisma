@@ -15,11 +15,12 @@ model Cursor {
 }
 
 model Stats {
-  id       String @id @default(uuid()) @database.Uuid
-  localId  String
-  remoteId String
-  class    String
-  level    String
-  health   String
-  mana     String
+  id          String   @id @default(uuid()) @database.Uuid
+  localId     String
+  remoteId    String
+  class       String
+  level       String
+  health      String
+  mana        String
+  lastUpdated DateTime
 }

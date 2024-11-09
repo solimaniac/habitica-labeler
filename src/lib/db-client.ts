@@ -1,9 +1,9 @@
-import {Cursor, PrismaClient} from "@prisma/client";
+import {Cursor, PrismaClient, Stats} from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 
-export const upsertCursor = async(cursor: string) => {
+export const upsertCursor = async (cursor: string) => {
   return prisma.cursor.upsert({
     where: {
       id: 1
@@ -17,6 +17,7 @@ export const upsertCursor = async(cursor: string) => {
     }
   });
 }
+
 export const getCursor = async (): Promise<Cursor | null> => {
   return prisma.cursor.findUniqueOrThrow({
     where: {
@@ -26,5 +27,72 @@ export const getCursor = async (): Promise<Cursor | null> => {
     return cursor;
   }).catch((error) => {
     return null;
+  });
+}
+
+export const upsertStats = async (
+  id: string,
+  localId: string,
+  remoteId: string,
+  playerClass: string,
+  level: string,
+  health: string,
+  mana: string
+) => {
+  return prisma.stats.upsert({
+    where: {
+      id,
+    },
+    update: {
+      remoteId,
+      class: playerClass,
+      level,
+      health,
+      mana,
+      lastUpdated: new Date()
+    },
+    create: {
+      localId,
+      remoteId,
+      class: playerClass,
+      level,
+      health,
+      mana,
+      lastUpdated: new Date()
+    },
+  });
+}
+
+export const getStatsByLocalId = async (localId: string): Promise<Stats | null> => {
+  try {
+    return await prisma.stats.findFirstOrThrow({
+      where: {
+        localId: localId
+      }
+    });
+  } catch (error) {
+    return null;
+  }
+}
+
+export const getStatsOlderThan = async (date: Date, limit: number): Promise<Stats[]> => {
+  return prisma.stats.findMany({
+    where: {
+      lastUpdated: {
+        lt: date,
+      }
+    },
+    orderBy: {
+      lastUpdated: Prisma.SortOrder.asc,
+    },
+    take: limit,
+  });
+}
+
+export const deleteStatsById = async (id: string) => {
+  return prisma.stats.delete({
+    where: {
+      id: id
+    }
   });
 }
