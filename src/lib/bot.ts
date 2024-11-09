@@ -1,6 +1,6 @@
 import {Bot, ChatMessage} from "@skyware/bot";
 import {getStatsByLocalId} from "./db-client";
-import {syncMemberStats} from "./stats.js";
+import {syncMemberStats} from "./stats";
 import {BSKY_BOT_IDENTIFIER, BSKY_BOT_PASSWORD} from "../config";
 import logger from "./logger";
 
@@ -23,7 +23,7 @@ export const startBot = async () => {
 
     const conversation = await message.getConversation();
     if (conversation) {
-      await conversation.sendMessage({text: "Hey there, " + sender.displayName + "!"});
+      await conversation.sendMessage({text: response});
     }
   });
 }
@@ -54,6 +54,7 @@ export const validateAndSyncStats = async (
     return 'Successfully linked your account!';
 
   } catch (error) {
+    logger.error(`Error syncing stats for user ${localId}: ${error}`);
     return 'Sorry, something went wrong. Please try again later.';
   }
 }

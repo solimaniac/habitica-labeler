@@ -16,7 +16,6 @@ import {handleLike} from "./lib/handler.js";
 let cursorUpdateInterval: NodeJS.Timeout;
 
 const initialCursor = await initCursor()
-await startBot()
 
 const jetstream = new Jetstream({
   wantedCollections: [WANTED_COLLECTION],
@@ -53,6 +52,7 @@ jetstream.onCreate(WANTED_COLLECTION, (event: CommitCreateEvent<typeof WANTED_CO
   }
 });
 
+await startBot()
 startLabeler();
 jetstream.start();
 

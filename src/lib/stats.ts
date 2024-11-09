@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import {createStats, deleteStatsById, getStatsByLocalId, updateStats} from './db-client';
-import {addOrUpdateLabel, fetchCurrentLabels} from "./labeler.js";
-import {getAllLabels} from "../labels.js";
+import {addOrUpdateLabel, fetchCurrentLabels} from "./labeler";
+import {getAllLabels} from "../labels";
 
 interface HabiticaMemberResponse {
   success: boolean;
@@ -35,7 +35,7 @@ export async function syncMemberStats(remoteId: string, localId: string): Promis
     throw new Error(`Error fetching user ${localId} info, status: ${data.success}`);
   }
 
-  const {stats} = data.data;
+  const {stats} = data.data.stats;
   const existingStats = await getStatsByLocalId(localId);
   const compositeId = `${localId}-${remoteId}`;
 
