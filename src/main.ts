@@ -12,6 +12,7 @@ import logger from './lib/logger';
 import {startBot} from "./lib/bot";
 import {initCursor, setCursor} from "./lib/cursor";
 import {handleLike} from "./lib/handler.js";
+import {startPeriodicStatsSync} from "./lib/stats.js";
 
 let cursorUpdateInterval: NodeJS.Timeout;
 
@@ -55,6 +56,7 @@ jetstream.onCreate(WANTED_COLLECTION, (event: CommitCreateEvent<typeof WANTED_CO
 await startBot()
 startLabeler();
 jetstream.start();
+startPeriodicStatsSync();
 
 async function shutdown() {
   try {

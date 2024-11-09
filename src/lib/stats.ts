@@ -1,8 +1,53 @@
 import fetch from 'node-fetch';
-import {createStats, deleteStatsById, getStatsByLocalId, updateStats, updateStatsTimestamp} from './db-client';
+import {
+  createStats,
+  deleteStatsById,
+  getStatsByLocalId,
+  getStatsOlderThan,
+  updateStats,
+  updateStatsTimestamp
+} from './db-client';
 import {addOrUpdateLabel, fetchCurrentLabels} from "./labeler";
 import {getAllLabels} from "../labels";
-import {HABITICA_AUTHOR_USER_ID} from "../config";
+import {
+  DELAY_BETWEEN_SYNCS_MS,
+  HABITICA_AUTHOR_USER_ID,
+  STALE_THRESHOLD_MINUTES,
+  BATCH_LIMIT,
+  SYNC_INTERVAL_MINUTES
+} from "../config";
+import logger from "./logger";
+
+export async function startPeriodicStatsSync(): Promise<void> {
+  const syncStaleStats = async () => {
+    try {
+      const staleDate = new Date(Date.now() - (STALE_THRESHOLD_MINUTES  * 60 * 1000));
+      const staleStats = await getStatsOlderThan(staleDate, BATCH_LIMIT);
+
+      logger.info(`Found ${staleStats.length} stale stats to sync`);
+
+      for (const stats of staleStats) {
+        try {
+          await syncMemberStats(stats.remoteId, stats.localId);
+          logger.info(`Successfully synced stats for user ${stats.localId}`);
+        } catch (error) {
+          logger.error(`Error syncing stats for user ${stats.localId}:`, error);
+        }
+
+        // Wait 2 seconds before processing the next user
+        await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_SYNCS_MS));
+      }
+    } catch (error) {
+      logger.error('Error in periodic stats sync:', error);
+    }
+  };
+
+  await syncStaleStats();
+
+  setInterval(async () => {
+    await syncStaleStats();
+  }, SYNC_INTERVAL_MINUTES * 60 * 1000);
+}
 
 interface HabiticaMemberResponse {
   success: boolean;

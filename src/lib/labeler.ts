@@ -1,13 +1,13 @@
 import {ComAtprotoLabelDefs} from '@atproto/api';
 import {LabelerServer} from '@skyware/labeler';
 
-import {DID, PORT, SIGNING_KEY} from '../config';
+import {DID, HOST, PORT, SIGNING_KEY} from '../config';
 import logger from './logger';
 
 const labelerServer = new LabelerServer({did: DID, signingKey: SIGNING_KEY});
 
 export const startLabeler = () => {
-  labelerServer.app.listen({port: PORT, host: '0.0.0.0'}, (error, address) => {
+  labelerServer.app.listen({port: PORT, host: HOST}, (error, address) => {
     if (error) {
       logger.error('Error starting server: %s', error);
     } else {
