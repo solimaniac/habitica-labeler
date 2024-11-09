@@ -30,7 +30,7 @@ export async function syncMemberStats(remoteId: string, localId: string): Promis
     throw new Error(`Error fetching user ${localId} info, status: ${response.status}`);
   }
 
-  logger.info("Request response received: ", response.json())
+  logger.info("Request response received: ", await response.json())
   
   const data = await response.json() as HabiticaMemberResponse;
 
