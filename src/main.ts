@@ -1,9 +1,20 @@
-import { CommitCreateEvent, Jetstream } from '@skyware/jetstream';
+import {CommitCreateEvent, Jetstream} from '@skyware/jetstream';
 import fs from 'node:fs';
 
-import { CURSOR_UPDATE_INTERVAL, DID, FIREHOSE_URL, METRICS_PORT, PORT, WANTED_COLLECTION } from './config.js';
-import { label, labelerServer } from './label.js';
+import {
+  BSKY_BOT_IDENTIFIER, BSKY_BOT_PASSWORD,
+  BSKY_IDENTIFIER,
+  BSKY_PASSWORD,
+  CURSOR_UPDATE_INTERVAL,
+  DID,
+  FIREHOSE_URL,
+  PORT,
+  WANTED_COLLECTION
+} from './config.js';
+import {label, labelerServer} from './label.js';
 import logger from './logger.js';
+import {ChatMessage} from "@skyware/bot";
+import {bot} from "./bot.js";
 
 let cursor = 0;
 let cursorUpdateInterval: NodeJS.Timeout;
@@ -26,6 +37,21 @@ try {
     process.exit(1);
   }
 }
+
+await bot.login({
+  identifier: BSKY_BOT_IDENTIFIER,
+  password: BSKY_BOT_PASSWORD,
+});
+
+bot.on("message", async (message: ChatMessage) => {
+  const sender = await message.getSender();
+  console.log(`Received message from @${sender.handle}: ${message.text}`);
+
+  const conversation = await message.getConversation();
+  if (conversation) {
+    await conversation.sendMessage({ text: "Hey there, " + sender.displayName + "!" });
+  }
+});
 
 const jetstream = new Jetstream({
   wantedCollections: [WANTED_COLLECTION],
