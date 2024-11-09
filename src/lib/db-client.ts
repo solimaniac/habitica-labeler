@@ -1,7 +1,6 @@
-import {Cursor, PrismaClient, Stats} from "@prisma/client";
+import {Cursor, Prisma, PrismaClient, Stats} from "@prisma/client";
 
 const prisma = new PrismaClient();
-
 
 export const upsertCursor = async (cursor: string) => {
   return prisma.cursor.upsert({
@@ -30,7 +29,7 @@ export const getCursor = async (): Promise<Cursor | null> => {
   });
 }
 
-export const upsertStats = async (
+export const createStats = async (
   id: string,
   localId: string,
   remoteId: string,
@@ -39,19 +38,9 @@ export const upsertStats = async (
   health: string,
   mana: string
 ) => {
-  return prisma.stats.upsert({
-    where: {
+  return prisma.stats.create({
+    data: {
       id,
-    },
-    update: {
-      remoteId,
-      class: playerClass,
-      level,
-      health,
-      mana,
-      lastUpdated: new Date()
-    },
-    create: {
       localId,
       remoteId,
       class: playerClass,
@@ -59,9 +48,33 @@ export const upsertStats = async (
       health,
       mana,
       lastUpdated: new Date()
-    },
+    }
   });
 }
+
+export const updateStats = async (
+  id: string,
+  remoteId: string,
+  playerClass: string,
+  level: string,
+  health: string,
+  mana: string
+) => {
+  return prisma.stats.update({
+    where: {
+      id,
+    },
+    data: {
+      remoteId,
+      class: playerClass,
+      level,
+      health,
+      mana,
+      lastUpdated: new Date()
+    }
+  });
+}
+
 
 export const getStatsByLocalId = async (localId: string): Promise<Stats | null> => {
   try {

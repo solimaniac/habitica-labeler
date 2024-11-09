@@ -2,7 +2,7 @@ import {AppBskyActorDefs, ComAtprotoLabelDefs} from '@atproto/api';
 import {LabelerServer} from '@skyware/labeler';
 
 import {DELETE_POST_REF, DID, PORT, SIGNING_KEY} from '../config';
-import {LABELS} from '../constants';
+import {LABELS} from '../labels.js';
 import logger from './logger';
 import {clearMemberStats} from "./stats.js";
 

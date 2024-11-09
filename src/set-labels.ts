@@ -2,7 +2,7 @@ import { type ComAtprotoLabelDefs } from '@atproto/api';
 import { type LoginCredentials, setLabelerLabelDefinitions } from '@skyware/labeler/scripts';
 
 import { BSKY_IDENTIFIER, BSKY_PASSWORD } from './config.js';
-import { LABELS } from './constants.js';
+import { LABELS } from './labels.js';
 import logger from './lib/logger.js';
 
 const loginCredentials: LoginCredentials = {

@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
-import {deleteStatsById, getStatsByLocalId, upsertStats} from './db-client';
+import {createStats, deleteStatsById, getStatsByLocalId, updateStats} from './db-client';
 import {addOrUpdateLabel, fetchCurrentLabels} from "./labeler.js";
-import {getAllLabels} from "../constants.js";
+import {getAllLabels} from "../labels.js";
 
 interface HabiticaMemberResponse {
   success: boolean;
@@ -36,19 +36,67 @@ export async function syncMemberStats(remoteId: string, localId: string): Promis
   }
 
   const {stats} = data.data;
-  
-  await upsertStats(
-    `${localId}-${remoteId}`, // Composite ID
-    localId,
-    remoteId,
-    stats.class,
-    stats.lvl.toString(),
-    stats.hp.toString(),
-    stats.mp.toString()
-  );
+  const existingStats = await getStatsByLocalId(localId);
+  const compositeId = `${localId}-${remoteId}`;
 
-  const labels = fetchCurrentLabels(localId);
-  await addOrUpdateLabel(localId, labels, getAllLabels(stats.class, stats.lvl, stats.hp, stats.maxHealth, stats.mp, stats.maxMP));
+  if (existingStats) {
+    const hasChanged =
+      existingStats.class !== stats.class ||
+      existingStats.level !== stats.lvl.toString() ||
+      existingStats.health !== stats.hp.toString() ||
+      existingStats.mana !== stats.mp.toString();
+
+    if (!hasChanged) {
+      return;
+    }
+    
+    await updateStats(
+      compositeId,
+      remoteId,
+      stats.class,
+      stats.lvl.toString(),
+      stats.hp.toString(),
+      stats.mp.toString()
+    );
+
+    const labels = fetchCurrentLabels(localId);
+    await addOrUpdateLabel(
+      localId,
+      labels,
+      getAllLabels(
+        stats.class,
+        stats.lvl,
+        stats.hp,
+        stats.maxHealth,
+        stats.mp,
+        stats.maxMP
+      )
+    );
+  } else {
+    await createStats(
+      compositeId,
+      localId,
+      remoteId,
+      stats.class,
+      stats.lvl.toString(),
+      stats.hp.toString(),
+      stats.mp.toString()
+    );
+
+    const labels = fetchCurrentLabels(localId);
+    await addOrUpdateLabel(
+      localId,
+      labels,
+      getAllLabels(
+        stats.class,
+        stats.lvl,
+        stats.hp,
+        stats.maxHealth,
+        stats.mp,
+        stats.maxMP
+      )
+    );
+  }
 }
 
 export async function clearMemberStats(
