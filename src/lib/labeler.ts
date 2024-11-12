@@ -1,8 +1,8 @@
-import {ComAtprotoLabelDefs} from '@atproto/api';
-import {LabelerServer} from '@skyware/labeler';
+import {LabelerServer, signLabel} from '@skyware/labeler';
 
 import {DID, HOST, PORT, SIGNING_KEY} from '../config';
 import logger from './logger';
+import {LABELS} from "../labels";
 
 const labelerServer = new LabelerServer({did: DID, signingKey: SIGNING_KEY});
 
@@ -20,26 +20,8 @@ export const stopLabeler = () => {
   labelerServer.stop();
 }
 
-export const fetchCurrentLabels = (did: string): Set<string> => {
-  const query = labelerServer.db
-    .prepare<unknown[], ComAtprotoLabelDefs.Label>(`SELECT * FROM labels WHERE uri = ?`)
-    .all(did);
-
-  const labels = query.reduce((set, label) => {
-    if (!label.neg) set.add(label.val);
-    else set.delete(label.val);
-    return set;
-  }, new Set<string>());
-
-  if (labels.size > 0) {
-    logger.info(`Current labels: ${Array.from(labels).join(', ')}`);
-  }
-
-  return labels;
-}
-
-export const deleteAllLabels = async (did: string, labels: Set<string>) => {
-  const labelsToDelete: string[] = Array.from(labels);
+export const deleteAllLabels = async (did: string) => {
+  const labelsToDelete: string[] = Array.from(LABELS.map(label => label.identifier));
 
   if (labelsToDelete.length === 0) {
     logger.info(`No labels to delete`);
@@ -54,7 +36,7 @@ export const deleteAllLabels = async (did: string, labels: Set<string>) => {
   }
 }
 
-export const addOrUpdateLabel = async (did: string, currentLabels: Set<string>, newLabels: Array<string>) => {
+export const addOrUpdateLabel = async (did: string, currentLabels: Array<string>, newLabels: Array<string>) => {
   if (currentLabels.size >= 1) {
     try {
       await labelerServer.createLabels({uri: did}, {negate: Array.from(currentLabels)});

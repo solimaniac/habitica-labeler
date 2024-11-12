@@ -4,15 +4,14 @@ import {
   CURSOR_UPDATE_INTERVAL,
   DID,
   FIREHOSE_URL,
-  PORT,
   WANTED_COLLECTION
 } from './config';
-import {startLabeler, stopLabeler} from './lib/labeler.js';
+import {startLabeler, stopLabeler} from './lib/labeler';
 import logger from './lib/logger';
 import {startBot} from "./lib/bot";
 import {initCursor, setCursor} from "./lib/cursor";
-import {handleLike} from "./lib/handler.js";
-import {startPeriodicStatsSync} from "./lib/stats.js";
+import {handleLike} from "./lib/handler";
+import {startPeriodicStatsSync} from "./lib/stats";
 
 let cursorUpdateInterval: NodeJS.Timeout;
 

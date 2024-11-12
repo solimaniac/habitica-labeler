@@ -7,13 +7,13 @@ import {
   updateStats,
   updateStatsTimestamp
 } from './db-client';
-import {addOrUpdateLabel, fetchCurrentLabels} from "./labeler";
+import {addOrUpdateLabel} from "./labeler";
 import {getAllLabels} from "../labels";
 import {
+  BATCH_LIMIT,
   DELAY_BETWEEN_SYNCS_MS,
   HABITICA_AUTHOR_USER_ID,
   STALE_THRESHOLD_MINUTES,
-  BATCH_LIMIT,
   SYNC_INTERVAL_MINUTES
 } from "../config";
 import logger from "./logger";
@@ -21,7 +21,7 @@ import logger from "./logger";
 export async function startPeriodicStatsSync(): Promise<void> {
   const syncStaleStats = async () => {
     try {
-      const staleDate = new Date(Date.now() - (STALE_THRESHOLD_MINUTES  * 60 * 1000));
+      const staleDate = new Date(Date.now() - (STALE_THRESHOLD_MINUTES * 60 * 1000));
       const staleStats = await getStatsOlderThan(staleDate, BATCH_LIMIT);
 
       logger.info(`Found ${staleStats.length} stale stats to sync`);
@@ -38,7 +38,7 @@ export async function startPeriodicStatsSync(): Promise<void> {
         await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_SYNCS_MS));
       }
     } catch (error) {
-      logger.error('Error in periodic stats sync:', error);
+      logger.error('Error in periodic stats sync:', error.message, error.stack);
     }
   };
 
@@ -110,10 +110,17 @@ export async function syncMemberStats(remoteId: string, localId: string): Promis
       stats.maxMP.toString()
     );
 
-    const labels = fetchCurrentLabels(localId);
+    const existingLabelIDs = getAllLabels(
+      existingStats.class,
+      parseInt(existingStats.lvl),
+      parseFloat(existingStats.hp),
+      parseFloat(existingStats.maxHealth),
+      parseFloat(existingStats.mp),
+      parseFloat(existingStats.maxMP)
+    );
     await addOrUpdateLabel(
       localId,
-      labels,
+      existingLabelIDs,
       getAllLabels(
         stats.class,
         stats.lvl,
@@ -135,10 +142,9 @@ export async function syncMemberStats(remoteId: string, localId: string): Promis
       stats.maxMP.toString()
     );
 
-    const labels = fetchCurrentLabels(localId);
     await addOrUpdateLabel(
       localId,
-      labels,
+      [],
       getAllLabels(
         stats.class,
         stats.lvl,
