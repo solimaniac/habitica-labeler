@@ -24,7 +24,7 @@ export async function syncStaleStats(): Promise<void> {
         await syncMemberStats(stats.remoteId, stats.localId);
         logger.info(`Successfully synced stats for user ${stats.localId}`);
       } catch (error) {
-        logger.error(`Error syncing stats for user ${stats.localId}:`, error);
+        console.error(`Error syncing stats for user ${stats.localId}:`, error);
       }
 
       // Wait 2 seconds before processing the next user
