@@ -16,7 +16,7 @@ model Cursor {
 }
 
 model Stats {
-  id          String   @id @default(uuid()) @database.Uuid
+  id          String   @id @default(uuid())
   localId     String
   remoteId    String
   class       String
