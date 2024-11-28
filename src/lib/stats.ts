@@ -32,7 +32,6 @@ export async function syncStaleStats(): Promise<void> {
     }
   } catch (error) {
     console.error('Error syncing stale stats:', error);
-    logger.error('Error in periodic stats sync:', error);
   }
 }
 
