@@ -31,6 +31,7 @@ export async function syncStaleStats(): Promise<void> {
       await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_SYNCS_MS));
     }
   } catch (error) {
+    console.error('Error syncing stale stats:', error);
     logger.error('Error in periodic stats sync:', error);
   }
 }

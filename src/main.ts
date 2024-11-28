@@ -56,7 +56,7 @@ jetstream.onCreate(WANTED_COLLECTION, (event: CommitCreateEvent<typeof WANTED_CO
 await startBot()
 startLabeler();
 jetstream.start();
-cron.schedule('*/5 * * * *', async () => {
+const sync = cron.schedule('*/5 * * * *', async () => {
   try {
     await syncStaleStats();
   } catch (error) {
@@ -67,6 +67,7 @@ cron.schedule('*/5 * * * *', async () => {
 async function shutdown() {
   try {
     logger.info('Shutting down gracefully...');
+    sync.stop();
     await setCursor(jetstream.cursor!);
     jetstream.close();
     stopLabeler();
