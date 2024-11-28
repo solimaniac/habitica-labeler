@@ -1,6 +1,15 @@
 import {Cursor, Prisma, PrismaClient, Stats} from "@prisma/client";
+import { PrismaLibSQL } from '@prisma/adapter-libsql'
+import { createClient } from '@libsql/client'
+import {TURSO_AUTH_TOKEN, TURSO_DATABASE_URL} from "../config";
 
-const prisma = new PrismaClient();
+const libsql = createClient({
+  url: TURSO_DATABASE_URL as string,
+  authToken: TURSO_AUTH_TOKEN as string,
+});
+
+const adapter = new PrismaLibSQL(libsql)
+const prisma = new PrismaClient({adapter});
 
 export const upsertCursor = async (cursor: string) => {
   return prisma.cursor.upsert({

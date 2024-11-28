@@ -11,7 +11,8 @@ import logger from './lib/logger';
 import {startBot} from "./lib/bot";
 import {initCursor, setCursor} from "./lib/cursor";
 import {handleLike} from "./lib/handler";
-import {startPeriodicStatsSync} from "./lib/stats";
+import {syncStaleStats} from "./lib/stats";
+import cron from 'node-cron'
 
 let cursorUpdateInterval: NodeJS.Timeout;
 
@@ -52,10 +53,16 @@ jetstream.onCreate(WANTED_COLLECTION, (event: CommitCreateEvent<typeof WANTED_CO
   }
 });
 
-await startBot()
+// await startBot()
 startLabeler();
 jetstream.start();
-startPeriodicStatsSync();
+cron.schedule('*/5 * * * *', async () => {
+  try {
+    await syncStaleStats();
+  } catch (error) {
+    console.error('Failed to sync stale stats:', error)
+  }
+})
 
 async function shutdown() {
   try {

@@ -7,46 +7,32 @@ import {
   updateStats,
   updateStatsTimestamp
 } from './db-client';
-import {addOrUpdateLabel} from "./labeler";
+import {addOrUpdateLabel, fetchCurrentLabels} from "./labeler";
 import {getAllLabels} from "../labels";
-import {
-  BATCH_LIMIT,
-  DELAY_BETWEEN_SYNCS_MS,
-  HABITICA_AUTHOR_USER_ID,
-  STALE_THRESHOLD_MINUTES,
-  SYNC_INTERVAL_MINUTES
-} from "../config";
+import {BATCH_LIMIT, DELAY_BETWEEN_SYNCS_MS, HABITICA_AUTHOR_USER_ID, STALE_THRESHOLD_MINUTES} from "../config";
 import logger from "./logger";
 
-export async function startPeriodicStatsSync(): Promise<void> {
-  const syncStaleStats = async () => {
-    try {
-      const staleDate = new Date(Date.now() - (STALE_THRESHOLD_MINUTES * 60 * 1000));
-      const staleStats = await getStatsOlderThan(staleDate, BATCH_LIMIT);
+export async function syncStaleStats(): Promise<void> {
+  try {
+    const staleDate = new Date(Date.now() - (STALE_THRESHOLD_MINUTES * 60 * 1000));
+    const staleStats = await getStatsOlderThan(staleDate, BATCH_LIMIT);
 
-      logger.info(`Found ${staleStats.length} stale stats to sync`);
+    logger.info(`Found ${staleStats.length} stale stats to sync`);
 
-      for (const stats of staleStats) {
-        try {
-          await syncMemberStats(stats.remoteId, stats.localId);
-          logger.info(`Successfully synced stats for user ${stats.localId}`);
-        } catch (error) {
-          logger.error(`Error syncing stats for user ${stats.localId}:`, error);
-        }
-
-        // Wait 2 seconds before processing the next user
-        await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_SYNCS_MS));
+    for (const stats of staleStats) {
+      try {
+        await syncMemberStats(stats.remoteId, stats.localId);
+        logger.info(`Successfully synced stats for user ${stats.localId}`);
+      } catch (error) {
+        logger.error(`Error syncing stats for user ${stats.localId}:`, error);
       }
-    } catch (error) {
-      logger.error('Error in periodic stats sync:', error.message, error.stack);
+
+      // Wait 2 seconds before processing the next user
+      await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_SYNCS_MS));
     }
-  };
-
-  await syncStaleStats();
-
-  setInterval(async () => {
-    await syncStaleStats();
-  }, SYNC_INTERVAL_MINUTES * 60 * 1000);
+  } catch (error) {
+    logger.error('Error in periodic stats sync:', error.message, error.stack);
+  }
 }
 
 interface HabiticaMemberResponse {
@@ -84,6 +70,7 @@ export async function syncMemberStats(remoteId: string, localId: string): Promis
 
   const {stats} = data.data;
   const existingStats = await getStatsByLocalId(localId);
+  const currentLabels = await fetchCurrentLabels(localId);
 
   if (existingStats) {
     const hasChanged =
@@ -109,27 +96,6 @@ export async function syncMemberStats(remoteId: string, localId: string): Promis
       stats.mp.toString(),
       stats.maxMP.toString()
     );
-
-    const existingLabelIDs = getAllLabels(
-      existingStats.class,
-      parseInt(existingStats.lvl),
-      parseFloat(existingStats.hp),
-      parseFloat(existingStats.maxHealth),
-      parseFloat(existingStats.mp),
-      parseFloat(existingStats.maxMP)
-    );
-    await addOrUpdateLabel(
-      localId,
-      existingLabelIDs,
-      getAllLabels(
-        stats.class,
-        stats.lvl,
-        stats.hp,
-        stats.maxHealth,
-        stats.mp,
-        stats.maxMP
-      )
-    );
   } else {
     await createStats(
       localId,
@@ -141,18 +107,21 @@ export async function syncMemberStats(remoteId: string, localId: string): Promis
       stats.mp.toString(),
       stats.maxMP.toString()
     );
+  }
+  const newLabels = getAllLabels(
+    stats.class,
+    stats.lvl,
+    stats.hp,
+    stats.maxHealth,
+    stats.mp,
+    stats.maxMP
+  );
 
+  for (const newLabel of newLabels) {
     await addOrUpdateLabel(
       localId,
-      [],
-      getAllLabels(
-        stats.class,
-        stats.lvl,
-        stats.hp,
-        stats.maxHealth,
-        stats.mp,
-        stats.maxMP
-      )
+      newLabel,
+      currentLabels,
     );
   }
 }

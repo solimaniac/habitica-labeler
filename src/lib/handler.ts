@@ -2,7 +2,7 @@ import {AppBskyActorDefs} from "@atproto/api";
 import logger from "./logger";
 import {DELETE_POST_REF} from "../config";
 import {clearMemberStats} from "./stats";
-import {deleteAllLabels} from "./labeler";
+import {deleteAllLabels, fetchCurrentLabels} from "./labeler";
 
 export const handleLike = async (subject: string | AppBskyActorDefs.ProfileView, rkey: string) => {
   const did = AppBskyActorDefs.isProfileView(subject) ? subject.did : subject;
@@ -14,7 +14,8 @@ export const handleLike = async (subject: string | AppBskyActorDefs.ProfileView,
   }
 
   if (rkey.includes(DELETE_POST_REF)) {
-    await deleteAllLabels(did);
+    const currentLabels = await fetchCurrentLabels(did);
+    await deleteAllLabels(did, currentLabels);
     await clearMemberStats(did);
   }
 };

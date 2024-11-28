@@ -15,7 +15,8 @@ export const CURSOR_UPDATE_INTERVAL =
   process.env.CURSOR_UPDATE_INTERVAL ? Number(process.env.CURSOR_UPDATE_INTERVAL) : 10000;
 export const DELETE_POST_REF = process.env.DELETE_POST_REF ?? '';
 
-export const SYNC_INTERVAL_MINUTES = process.env.SYNC_INTERVAL_MINUTES ?? 5;
 export const STALE_THRESHOLD_MINUTES = process.env.STALE_THRESHOLD_MINUTES ?? 24 * 60;
 export const BATCH_LIMIT = process.env.BATCH_LIMIT ?? 50;
 export const DELAY_BETWEEN_SYNCS_MS = process.env.DELAY_BETWEEN_SYNCS_MS ?? 2000;
+export const TURSO_DATABASE_URL = process.env.TURSO_DATABASE_URL ?? '';
+export const TURSO_AUTH_TOKEN = process.env.TURSO_AUTH_TOKEN ?? '';
