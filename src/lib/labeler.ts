@@ -1,5 +1,4 @@
 import {LabelerServer} from '@skyware/labeler';
-import {ComAtprotoLabelDefs} from '@atcute/client/lexicons';
 
 import {DID, HOST, PORT, SIGNING_KEY, TURSO_AUTH_TOKEN, TURSO_DATABASE_URL} from '../config';
 import logger from './logger';
@@ -28,12 +27,12 @@ export const stopLabeler = () => {
 }
 
 export const fetchCurrentLabels = async (did: string): Promise<Set<Label>> => {
-  const query = await labelerServer.db.execute({
+  const result = await labelerServer.db.execute({
     sql: "SELECT * FROM labels WHERE uri = ?",
     args: [did]
-  }) as ComAtprotoLabelDefs.Label[];
+  });
 
-  const labels = query.reduce((set, label) => {
+  const labels = result.rows.reduce((set, label) => {
     if (!label.neg) set.add(label.val);
     else set.delete(label.val);
     return set;
