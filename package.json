@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@atproto/api": "^0.13.14",
-    "@libsql/client": "^0.14.0",
+    "@libsql/client": "^0.8.0",
     "@prisma/adapter-libsql": "^5.22.0",
     "@prisma/client": "5.22.0",
     "@skyware/bot": "^0.3.6",
