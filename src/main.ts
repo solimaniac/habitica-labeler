@@ -53,7 +53,7 @@ jetstream.onCreate(WANTED_COLLECTION, (event: CommitCreateEvent<typeof WANTED_CO
   }
 });
 
-// await startBot()
+await startBot()
 startLabeler();
 jetstream.start();
 const sync = cron.schedule('0,5,10,15,20,25,35,40,45,50,55 * * * *', async () => {
